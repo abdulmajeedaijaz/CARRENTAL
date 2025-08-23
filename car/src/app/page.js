@@ -1,103 +1,212 @@
-import Image from "next/image";
+// Login.jsx (or app/login/page.jsx in Next.js App Router)
+'use client';
 
-export default function Home() {
+import { useState } from "react";
+
+export default function Login() {
+  const [form, setForm] = useState({ email: "", password: "", remember: true });
+  const [showPw, setShowPw] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [serverMsg, setServerMsg] = useState("");
+
+  const validate = () => {
+    const e = {};
+    if (!form.email.trim()) e.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      e.email = "Enter a valid email";
+    if (!form.password) e.password = "Password is required";
+    else if (form.password.length < 6) e.password = "Min 6 characters";
+    return e;
+  };
+
+  const handleChange = (ev) => {
+    const { name, value, type, checked } = ev.target;
+    setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
+  };
+
+  const handleSubmit = async (ev) => {
+    ev.preventDefault();
+    setServerMsg("");
+    const e = validate();
+    setErrors(e);
+    if (Object.keys(e).length) return;
+
+    try {
+      setSubmitting(true);
+      // TODO: replace with your API call
+      await new Promise((r) => setTimeout(r, 900)); // mock request
+      setServerMsg("Logged in successfully ✅");
+      // navigate after success (e.g., window.location.href = "/dashboard")
+    } catch (err) {
+      setServerMsg("Login failed. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div style={styles.wrapper}>
+      <form onSubmit={handleSubmit} style={styles.card} noValidate>
+        <h1 style={styles.title}>Welcome back</h1>
+        <p style={styles.subtitle}>Sign in to continue</p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+        <label style={styles.label}>
+          Email
+          <input
+            style={{ ...styles.input, ...(errors.email ? styles.inputError : {}) }}
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
+          {errors.email && <span style={styles.error}>{errors.email}</span>}
+        </label>
+
+        <label style={styles.label}>
+          Password
+          <div style={styles.passwordWrap}>
+            <input
+              style={{
+                ...styles.input,
+                ...(errors.password ? styles.inputError : {}),
+                paddingRight: 84,
+              }}
+              type={showPw ? "text" : "password"}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              autoComplete="current-password"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
+            <button
+              type="button"
+              onClick={() => setShowPw((s) => !s)}
+              style={styles.eyeBtn}
+              aria-label={showPw ? "Hide password" : "Show password"}
+            >
+              {showPw ? "Hide" : "Show"}
+            </button>
+          </div>
+          {errors.password && <span style={styles.error}>{errors.password}</span>}
+        </label>
+
+        <div style={styles.row}>
+          <label style={styles.checkbox}>
+            <input
+              type="checkbox"
+              name="remember"
+              checked={form.remember}
+              onChange={handleChange}
+            />
+            <span>Remember me</span>
+          </label>
+          <a href="#" style={styles.link} onClick={(e) => e.preventDefault()}>
+            Forgot password?
           </a>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        <button
+          type="submit"
+          style={{
+            ...styles.button,
+            ...(submitting ? styles.buttonDisabled : {}),
+          }}
+          disabled={submitting}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          {submitting ? "Signing in..." : "Sign in"}
+        </button>
+
+        {serverMsg && (
+          <div
+            style={{
+              marginTop: 14,
+              fontSize: 14,
+              color: serverMsg.includes("successfully") ? "#0a7f2e" : "#b00020",
+              textAlign: "center",
+            }}
+            role="status"
+          >
+            {serverMsg}
+          </div>
+        )}
+
+        <p style={{ marginTop: 18, fontSize: 14, textAlign: "center", color: "#6b7280" }}>
+          Don’t have an account?{" "}
+          <a href="#" style={styles.link} onClick={(e) => e.preventDefault()}>
+            Create one
+          </a>
+        </p>
+      </form>
     </div>
   );
 }
+
+const styles = {
+  wrapper: {
+    minHeight: "100dvh",
+    display: "grid",
+    placeItems: "center",
+    background:
+      "radial-gradient(1200px 600px at 10% -10%, #f0f9ff 10%, transparent 60%), radial-gradient(1200px 600px at 110% 110%, #eef2ff 10%, transparent 60%), #0b1220",
+    padding: 16,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 420,
+    background: "#ffffff",
+    borderRadius: 20,
+    padding: 28,
+    boxShadow: "0 10px 30px rgba(0,0,0,.12)",
+  },
+  title: { margin: 0, fontSize: 26, fontWeight: 700, color: "#0f172a" },
+  subtitle: { marginTop: 6, marginBottom: 18, color: "#6b7280", fontSize: 14 },
+  label: { display: "block", fontSize: 14, color: "#111827", marginTop: 12 },
+  input: {
+    width: "100%",
+    marginTop: 6,
+    padding: "12px 14px",
+    borderRadius: 12,
+    border: "1px solid #e5e7eb",
+    outline: "none",
+    fontSize: 14,
+  },
+  inputError: { borderColor: "#b00020", background: "#fff6f6" },
+  error: { color: "#b00020", fontSize: 12, marginTop: 6, display: "block" },
+  passwordWrap: { position: "relative" },
+  eyeBtn: {
+    position: "absolute",
+    right: 6,
+    top: 6,
+    height: 36,
+    padding: "0 12px",
+    borderRadius: 10,
+    border: "1px solid #e5e7eb",
+    background: "#f9fafb",
+    cursor: "pointer",
+    fontSize: 12,
+  },
+  row: {
+    marginTop: 12,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  checkbox: { display: "flex", gap: 8, alignItems: "center", color: "#374151" },
+  link: { color: "#2563eb", textDecoration: "none" },
+  button: {
+    width: "100%",
+    marginTop: 16,
+    padding: "12px 16px",
+    borderRadius: 12,
+    border: "none",
+    background:
+      "linear-gradient(135deg, rgba(37,99,235,1) 0%, rgba(99,102,241,1) 100%)",
+    color: "#fff",
+    fontWeight: 600,
+    cursor: "pointer",
+  },
+  buttonDisabled: { opacity: 0.7, cursor: "not-allowed" },
+};
