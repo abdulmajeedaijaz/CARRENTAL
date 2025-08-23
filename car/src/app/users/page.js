@@ -116,7 +116,7 @@ export default function Login() {
           }}
           disabled={submitting}
         >
-          {submitting ? "Signing in..." : "Sign in"}
+          {submitting ? "login..." : "login"}
         </button>
 
         {serverMsg && (
@@ -135,7 +135,7 @@ export default function Login() {
 
         <p style={{ marginTop: 18, fontSize: 14, textAlign: "center", color: "#6b7280" }}>
           Don’t have an account?{" "}
-          <a href="#" style={styles.link} onClick={(e) => e.preventDefault()}>
+          <a href="src/app/users/page.js" style={styles.link} onClick={(e) => e.preventDefault()}>
             Create one
           </a>
         </p>
